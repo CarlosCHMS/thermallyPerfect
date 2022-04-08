@@ -131,12 +131,68 @@ class gas():
 
         return cp
 
+    def enthalpy(self, T):
+
+        if T < 1000:
+            a = self.a0
+
+        else:
+            a = self.a1
+
+
+        h = 0.0        
+        for ii in range(2, 8):
+            h += a[ii]*( (T**(ii-1)) - (300.0**(ii-1)) )/(ii-1)
+
+        h += a[1]*numpy.log(T/300)
+        h += a[0]*(1/300 - 1/T)
+
+        h += 1.4*287.035*300/(1.4-1)
+
+        return h
+
+    def energy(self, T):
+
+        h = self.enthalpy(T)
+
+        e = h - 287.035*T
+
+        return e
+
+    def temperature(self, e):
+
+        T0 = e/(287.035/(1.4-1))
+        e0 = self.energy(T0)
+
+        T1 = T0*1.001
+        e1 = self.energy(T1)        
+
+        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
+
+        T0 = T1
+        e0 = e1
+        T1 = T2
+        e1 = self.energy(T1)        
+
+        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
+
+        T0 = T1
+        e0 = e1
+        T1 = T2
+        e1 = self.energy(T1)        
+
+        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
+
+        return T2
+
 
 if __name__=="__main__":
 
     g = gas()
 
     g.calcCoeffAir()
+
+    """
 
     for ii in range(0, 17):
         T  =300 + ii*100
@@ -145,3 +201,15 @@ if __name__=="__main__":
     for ii in range(0, 17):
         T  =300 + ii*100
         print(T, g.cp(T), g.cv(T), g.cp(T)/g.cv(T))
+
+    for ii in range(0, 17):
+        T  =300 + ii*100
+        print(T, g.enthalpy(T), 1.4*287.035*T/(1.4-1))
+
+    """
+
+    for ii in range(0, 17):
+        T  =300 + ii*100
+        e = g.energy(T)
+        print(T, e, g.temperature(e))
+
