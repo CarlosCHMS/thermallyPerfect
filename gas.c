@@ -82,43 +82,6 @@ double gasEnergy(GAS* gas, double T)
 
 }
 
-double gasTemperature(GAS* gas, double e)
-{
-
-    double T;
-    double T0, T1, T2, e0, e1;
-
-    if(gas->type == 0)
-    {
-        T = e/(gas->Rgas/(1.4-1.));
-    }
-    else
-    {   
-        T0 = e/(gas->Rgas/(1.4-1));
-        e0 = gasEnergy(gas, T0);
-
-        T1 = T0*1.1;
-        e1 = gasEnergy(gas, T1);
-
-        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0);
-
-        while(fabs(T2 - T1)>1.e-6)
-        {
-            T0 = T1;
-            e0 = e1;
-            T1 = T2;
-            e1 = gasEnergy(gas, T1);
-
-            T2 = T1 + (e - e1)*(T1-T0)/(e1-e0);
-        }
-        
-        T = T2;
-    }
-
-    return T;
-
-}
-
 double gasCp(GAS* gas, double T)
 {
 
@@ -151,6 +114,40 @@ double gasCp(GAS* gas, double T)
     }
 
     return cp;
+
+}
+
+double gasTemperature(GAS* gas, double e)
+{
+
+    double T;
+    double T0, T1, T2, e0, e1, cp;
+
+    if(gas->type == 0)
+    {
+        T = e/(gas->Rgas/(1.4-1.));
+    }
+    else
+    {   
+        T1 = e/(gas->Rgas/(1.4-1));
+        
+        e1 = gasEnergy(gas, T1);
+        cp = gasCp(gas, T1);
+        T2 = T1 + (e - e1)/cp;
+
+        while(fabs(T2 - T1)>1.e-6)
+        {
+            T1 = T2;
+            
+            e1 = gasEnergy(gas, T1);
+            cp = gasCp(gas, T1);
+            T2 = T1 + (e - e1)/cp;
+        }
+        
+        T = T2;
+    }
+
+    return T;
 
 }
 
