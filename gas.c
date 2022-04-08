@@ -121,7 +121,7 @@ double gasTemperature(GAS* gas, double e)
 {
 
     double T;
-    double T0, T1, T2, e0, e1, cp;
+    double T0, T1, T2, e0, e1, cv;
 
     if(gas->type == 0)
     {
@@ -132,16 +132,16 @@ double gasTemperature(GAS* gas, double e)
         T1 = e/(gas->Rgas/(1.4-1));
         
         e1 = gasEnergy(gas, T1);
-        cp = gasCp(gas, T1);
-        T2 = T1 + (e - e1)/cp;
+        cv = gasCp(gas, T1) - gas->Rgas;
+        T2 = T1 + (e - e1)/cv;
 
         while(fabs(T2 - T1)>1.e-6)
         {
             T1 = T2;
             
             e1 = gasEnergy(gas, T1);
-            cp = gasCp(gas, T1);
-            T2 = T1 + (e - e1)/cp;
+            cv = gasCp(gas, T1) - gas->Rgas;
+            T2 = T1 + (e - e1)/cv;
         }
         
         T = T2;
