@@ -1,0 +1,3 @@
+rm ./executable
+gcc gas.c -o executable -lm
+./executable

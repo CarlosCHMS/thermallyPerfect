@@ -144,9 +144,8 @@ class gas():
         for ii in range(2, 8):
             h += a[ii]*( (T**(ii-1)) - (300.0**(ii-1)) )/(ii-1)
 
-        h += a[1]*numpy.log(T/300)
+        h += a[1]*numpy.log(T/300)        
         h += a[0]*(1/300 - 1/T)
-
         h += 1.4*287.035*300/(1.4-1)
 
         return h
@@ -164,24 +163,19 @@ class gas():
         T0 = e/(287.035/(1.4-1))
         e0 = self.energy(T0)
 
-        T1 = T0*1.001
+        T1 = T0*1.1
         e1 = self.energy(T1)        
 
         T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
 
-        T0 = T1
-        e0 = e1
-        T1 = T2
-        e1 = self.energy(T1)        
+        while(abs(T2 - T1)>1e-6):
 
-        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
+            T0 = T1
+            e0 = e1
+            T1 = T2
+            e1 = self.energy(T1)        
 
-        T0 = T1
-        e0 = e1
-        T1 = T2
-        e1 = self.energy(T1)        
-
-        T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
+            T2 = T1 + (e - e1)*(T1-T0)/(e1-e0)
 
         return T2
 
@@ -206,10 +200,19 @@ if __name__=="__main__":
         T  =300 + ii*100
         print(T, g.enthalpy(T), 1.4*287.035*T/(1.4-1))
 
-    """
-
+    
+    
     for ii in range(0, 17):
         T  =300 + ii*100
         e = g.energy(T)
         print(T, e, g.temperature(e))
+
+    """
+    
+    T0 = 2000
+    e = g.energy(T0);
+    T = g.temperature(e);
+    Cp = g.cp2(T0);
+
+    print(T0, e, T, Cp);
 
